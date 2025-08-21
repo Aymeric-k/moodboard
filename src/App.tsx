@@ -11,7 +11,7 @@ import NotesModal from './components/NotesModal.tsx'
 import AddWorkCard from './components/AddWorkCard.tsx'
 import FilterControls from './components/FilterControls.tsx'
 import { YearlyHeatmap } from './components/YearlyHeatmap.tsx'
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { EmptyState } from './components/EmptyState.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnClickOutside } from './hooks/useOnClickOutside.ts';
@@ -20,6 +20,7 @@ import { useFilterStore } from './stores/filterStore.ts';
 import { useMoodStore } from './stores/moodStore.ts';
 import { useUIStore } from './stores/uiStore.ts';
 import SmartTagSelector from './components/SmartTagSelector.tsx';
+import PerformanceProfiler from './components/PerformanceProfiler.tsx';
 
 function App() {
   // Refs for the filter menu and its toggle button
@@ -37,6 +38,19 @@ function App() {
     toggleFilterMenu,
     closeFilterMenu
   } = useUIStore();
+
+  // Detect mobile screen size
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const todayMoods = todayMoodsData.moods;
 
   // Hook to close the filter menu when clicking outside
@@ -55,7 +69,7 @@ function App() {
     }
   }, [commitMoodsIfNewDay, setWorkToPromptForProgress]); // The dependency is stable, so this still runs only once.
 
-  // Regroupe les événements d'humeur par jour pour la heatmap
+  // Optimized daily activities calculation
   const dailyActivities = useMemo(() => {
     // 1. On traite l'historique permanent des humeurs et des œuvres.
     const data = groupActivitiesByDay(historicalEvents, works, progressEvents);
@@ -88,16 +102,20 @@ function App() {
     return data;
   }, [historicalEvents, todayMoods, works, progressEvents]);
 
+  // Optimized recommendations calculation with early return
   const recommendedWorks = useMemo(() => {
     if (todayMoods.length === 0 && activeSmartTags.length === 0) {
       return null;
     }
 
     const recommendations = new Map<string, Recommendation>();
+    const todayMoodsSet = new Set(todayMoods);
+    const activeSmartTagsSet = new Set(activeSmartTags);
+
     works.forEach(work => {
       // Only calculate scores for works that have at least one matching mood or tag
-      const hasMoodMatch = work.moodId.some(id => todayMoods.includes(id));
-      const hasTagMatch = work.smartTags?.some(tag => activeSmartTags.includes(tag));
+      const hasMoodMatch = work.moodId.some(id => todayMoodsSet.has(id));
+      const hasTagMatch = work.smartTags?.some(tag => activeSmartTagsSet.has(tag));
 
       if (hasMoodMatch || hasTagMatch) {
         const recommendation = calculateRecommendationScore({ work, todayMoods, activeSmartTags, allMoods: moods });
@@ -107,8 +125,9 @@ function App() {
       }
     });
     return recommendations;
-  }, [works, todayMoods, activeSmartTags]);
+  }, [works, todayMoods, activeSmartTags, moods]);
 
+  // Optimized displayed works with memoized filters
   const displayedWorks = useMemo(() => {
     let filteredWorks = [...works];
 
@@ -118,16 +137,19 @@ function App() {
       const categoryMatch = filters.category === 'all' || work.category === filters.category;
       const favoriteMatch = !filters.isFavorite || work.isFavorite;
 
-      // 2. Apply search filter (case-insensitive)
-      const searchMatch = !filters.searchQuery ||
-        work.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        (work.notes && work.notes.toLowerCase().includes(filters.searchQuery.toLowerCase()));
+      // 2. Apply search filter (case-insensitive) - only if search query exists
+      if (filters.searchQuery) {
+        const searchLower = filters.searchQuery.toLowerCase();
+        const titleMatch = work.title.toLowerCase().includes(searchLower);
+        const notesMatch = work.notes && work.notes.toLowerCase().includes(searchLower);
+        if (!titleMatch && !notesMatch) return false;
+      }
 
-      return statusMatch && categoryMatch && favoriteMatch && searchMatch;
+      return statusMatch && categoryMatch && favoriteMatch;
     });
 
     // 2. If recommendations are active, sort by score. Otherwise, sort by creation date.
-    if (recommendedWorks) {
+    if (recommendedWorks && recommendedWorks.size > 0) {
       filteredWorks.sort((a, b) => {
         const scoreA = recommendedWorks.get(a.id)?.score ?? -Infinity;
         const scoreB = recommendedWorks.get(b.id)?.score ?? -Infinity;
@@ -140,6 +162,15 @@ function App() {
 
     return filteredWorks;
   }, [works, filters, recommendedWorks]);
+
+  // Memoized categories to prevent unnecessary recalculations
+  const uniqueCategories = useMemo(() => [...new Set(works.map(w => w.category))], [works]);
+
+  // Memoized container key to prevent unnecessary re-renders
+  const containerKey = useMemo(() =>
+    todayMoods.join('-') + activeSmartTags.join('-'),
+    [todayMoods, activeSmartTags]
+  );
 
   // Variants pour le conteneur qui va orchestrer l'animation
   const containerVariants = {
@@ -155,7 +186,7 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-slate-900 to-blue-950`}>
-      <h1 className="text-3xl font-bold text-center pt-10 text-gray-100">How are you feeling today?</h1>
+      <h1 className="text-3xl font-bold text-center pt-10 text-gray-100 px-4 sm:text-2xl sm:pt-6">How are you feeling today?</h1>
       <Buttons moods={moods} activeMoods={todayMoods} />
 
       {/* Smart Tag Toggles */}
@@ -169,17 +200,17 @@ function App() {
 
 
       {/* On affiche la nouvelle heatmap, plus discrète et alignée à droite */}
-      <div className="flex justify-center px-8 mb-4">
+      <div className="flex justify-center px-8 mb-4 overflow-x-auto sm:px-4">
         <YearlyHeatmap
           dailyData={dailyActivities}
           moods={moods}
         />
       </div>
 
-      <h2 className="text-2xl font-bold text-center pt-6 text-gray-200">What do you want to do?</h2>
+      <h2 className="text-2xl font-bold text-center pt-6 text-gray-200 px-4 sm:text-xl sm:pt-4">What do you want to do?</h2>
 
       {/* New Filter Bar and Button */}
-      <div className="max-w-7xl mx-auto px-8 mt-4 mb-8">
+      <div className="max-w-7xl mx-auto px-8 mt-4 mb-8 sm:px-4 sm:mb-6">
         <div className="relative">
           <hr className="border-t-2 border-slate-700" />
           <div className="absolute top-3.5 right-0 flex justify-end">
@@ -199,13 +230,26 @@ function App() {
             {isFilterMenuOpen && (
               <motion.div
                 ref={filterMenuRef}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+                initial={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10 }}
+                animate={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
+                exit={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10, transition: { duration: 0.15 } }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-full right-0 mt-2 z-30"
+                className={isMobile
+                  ? "fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center"
+                  : "absolute top-full right-0 mt-2 z-30"
+                }
               >
-                <FilterControls categories={[...new Set(works.map(w => w.category))]} />
+                {isMobile && (
+                  <motion.button
+                    onClick={closeFilterMenu}
+                    className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </motion.button>
+                )}
+                <FilterControls categories={uniqueCategories} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -213,29 +257,34 @@ function App() {
       </div>
 
       <motion.div
-        key={todayMoods.join('-') + activeSmartTags.join('-')} // A key that changes when moods or tags change
-        className='flex flex-wrap gap-8 justify-center p-8'
+        key={containerKey} // A key that changes when moods or tags change
+        className='flex flex-wrap justify-center gap-10 p-8 max-w-7xl mx-auto'
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        {displayedWorks.length > 0 ? (
-          <AnimatePresence>
-            {displayedWorks.map((work) => (
-              <WorkCard
-                key={work.id}
-                backlogWork={work} // Renamed prop
-                activeMoods={todayMoods}
-                moods={moods}
-                isPromptingForProgress={work.id === workToPromptForProgressId}
-                recommendation={recommendedWorks?.get(work.id)}
-              />
-            ))}
-          </AnimatePresence>
-        ) : (
-          <EmptyState />
-        )}
-        <AddWorkCard moods={moods} />
+        <PerformanceProfiler id="work-cards-container">
+          {displayedWorks.length > 0 ? (
+            <AnimatePresence>
+              {displayedWorks.map((work) => (
+                <PerformanceProfiler key={work.id} id={`work-card-${work.id}`}>
+                  <WorkCard
+                    backlogWork={work} // Renamed prop
+                    activeMoods={todayMoods}
+                    moods={moods}
+                    isPromptingForProgress={work.id === workToPromptForProgressId}
+                    recommendation={recommendedWorks?.get(work.id)}
+                  />
+                </PerformanceProfiler>
+              ))}
+            </AnimatePresence>
+          ) : (
+            <EmptyState totalWorksCount={works.length} />
+          )}
+          <PerformanceProfiler id="add-work-card">
+            <AddWorkCard moods={moods} />
+          </PerformanceProfiler>
+        </PerformanceProfiler>
       </motion.div>
 
       <AnimatePresence>

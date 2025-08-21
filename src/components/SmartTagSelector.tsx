@@ -48,8 +48,9 @@ export default function SmartTagSelector({ activeTags, onTagToggle, className = 
             return (
               <button
                 key={tag}
+                type="button"
                 onClick={() => onTagToggle(tag)}
-                className={`px-3 py-1.5 text-xs rounded-full transition-all duration-200 ${getTagColor(tag, isActive)}`}
+                className={`px-3 py-1.5 text-xs rounded-full transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${getTagColor(tag, isActive)}`}
                 aria-pressed={isActive}
               >
                 {getTagLabel(tag)}
@@ -68,8 +69,9 @@ export default function SmartTagSelector({ activeTags, onTagToggle, className = 
             return (
               <button
                 key={tag}
+                type="button"
                 onClick={() => onTagToggle(tag)}
-                className={`px-3 py-1.5 text-xs rounded-full transition-all duration-200 ${getTagColor(tag, isActive)}`}
+                className={`px-3 py-1.5 text-xs rounded-full transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${getTagColor(tag, isActive)}`}
                 aria-pressed={isActive}
               >
                 {getTagLabel(tag)}

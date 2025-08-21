@@ -67,15 +67,21 @@ export function YearlyHeatmap({ dailyData, moods }: YearlyHeatmapProps) {
   const formatter = new Intl.DateTimeFormat('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
   return (
-    <div className="inline-block bg-slate-800/50 p-3 rounded-lg">
+    <div className="inline-block bg-slate-800/50 p-2 sm:p-3 rounded-lg">
       <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-[repeat(53,minmax(0,1fr))] gap-0.5 text-xs text-slate-400 -mr-1">
+        <div className="grid grid-cols-[repeat(53,minmax(0,1fr))] gap-0.5 text-xs text-slate-400 -mr-1 hidden sm:grid">
           {monthLabels.map(({ label, colStart }) => (
             <div key={label} className="text-left" style={{ gridColumnStart: colStart }}>
               {label}
             </div>
           ))}
         </div>
+        {/* Version mobile compacte */}
+        <div className="sm:hidden text-center text-xs text-slate-400 mb-2">
+          <p>Mood History</p>
+          <p className="text-slate-500">Tap to view full heatmap</p>
+        </div>
+
         <div role="grid" className="grid grid-flow-col grid-rows-7 gap-0.5">
           {days.map(date => {
             const dateISO = formatter.format(date);
