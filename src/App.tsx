@@ -7,6 +7,7 @@ import { groupActivitiesByDay } from './utils/moodUtils.ts';
 import Buttons from './components/Buttons'
 import WorkCard from './components/WorkCard.tsx'
 import ConfirmationModal from './components/ConfirmationModal.tsx'
+import NotesModal from './components/NotesModal.tsx'
 import AddWorkCard from './components/AddWorkCard.tsx'
 import FilterControls from './components/FilterControls.tsx'
 import { YearlyHeatmap } from './components/YearlyHeatmap.tsx'
@@ -240,6 +241,7 @@ function App() {
       <AnimatePresence>
         {/* The modal now controls its own visibility based on the uiStore */}
         <ConfirmationModal />
+        <NotesModal />
       </AnimatePresence>
     </div>
   )
