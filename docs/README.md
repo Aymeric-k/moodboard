@@ -7,6 +7,7 @@ Ce dossier contient la documentation technique et les guides d'utilisation du pr
 ### Fonctionnalités
 
 - **[Recherche](./SEARCH_FEATURE.md)** - Système de recherche intégré aux filtres
+- **[SmartTags optimisés](./SMART_TAGS_ENHANCEMENT.md)** - Système de tags contextuels avec 5 options uniques
 
 ### Architecture
 

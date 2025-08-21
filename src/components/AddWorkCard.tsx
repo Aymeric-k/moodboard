@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { MoodType } from '../types/MoodType';
 import type { WorkType } from '../types/WorkType';
-import { SMART_TAGS, type SmartTag } from '../types/SmartTag';
+import { type SmartTag } from '../types/SmartTag';
 import { useWorkStore } from '../stores/workStore.ts';
 import { motion } from 'framer-motion';
+import SmartTagSelector from './SmartTagSelector';
 // We create a specific type for the form data, excluding fields that are generated automatically.
 type WorkFormData = Omit<WorkType, 'id' | 'createdAtISO' | 'status' | 'progress' | 'completedAtISO'>;
 
@@ -131,24 +132,11 @@ function AddWorkCard({ moods }: AddWorkCardProps) {
         {/* Section to edit Smart Tags */}
         <div className="mt-2 border-t border-slate-700 pt-3">
           <p className="text-sm text-slate-400 mb-2 text-center">Smart Tags:</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {SMART_TAGS.map(tag => {
-              const isSelected = formData.smartTags?.includes(tag);
-              return (
-                <button
-                  type="button"
-                  key={tag}
-                  onClick={() => handleSmartTagToggle(tag)}
-                  aria-pressed={isSelected}
-                  className={`px-2 py-1 text-xs rounded-full transition-all ${
-                    isSelected ? 'bg-purple-500 text-white font-bold scale-105' : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
-                  }`}
-                >
-                  {tag.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                </button>
-              );
-            })}
-          </div>
+          <SmartTagSelector
+            activeTags={formData.smartTags || []}
+            onTagToggle={handleSmartTagToggle}
+            className="max-h-48 overflow-y-auto"
+          />
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <button type="button" onClick={() => setIsExpanded(false)} className="px-4 py-1 bg-slate-600 rounded text-white">Cancel</button>

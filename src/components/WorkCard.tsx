@@ -1,11 +1,12 @@
 import type { WorkType } from "../types/WorkType.ts"
-import { SMART_TAGS, type SmartTag } from "../types/SmartTag.ts"
+import { type SmartTag } from "../types/SmartTag.ts"
 import { motion } from "framer-motion"
 import type { Recommendation } from '../utils/recommendationUtils.ts';
 import type { MoodType } from "../types/MoodType.ts"
 import { useWorkStore } from '../stores/workStore.ts';
 import { useUIStore } from '../stores/uiStore.ts';
 import { useState, useEffect } from "react"
+import SmartTagSelector from './SmartTagSelector';
 
 const cardVariants = {
 
@@ -336,24 +337,11 @@ function WorkCard({backlogWork, activeMoods, moods, isPromptingForProgress, reco
             {/* Section to edit Smart Tags */}
             <div className="mt-3 border-t border-slate-700 pt-3">
               <p className="text-sm text-slate-400 mb-2">Smart Tags:</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {SMART_TAGS.map(tag => {
-                  const isSelected = editedWork.smartTags?.includes(tag);
-                  return (
-                    <button
-                      type="button"
-                      key={tag}
-                      onClick={() => handleSmartTagToggle(tag)}
-                      aria-pressed={isSelected}
-                      className={`px-2 py-1 text-xs rounded-full transition-all ${
-                        isSelected ? 'bg-purple-500 text-white font-bold scale-105' : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
-                      }`}
-                    >
-                      {tag.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                    </button>
-                  );
-                })}
-              </div>
+              <SmartTagSelector
+                activeTags={editedWork.smartTags || []}
+                onTagToggle={handleSmartTagToggle}
+                className="max-h-32 overflow-y-auto"
+              />
             </div>
 
             <div className="flex justify-center gap-2 mt-4">

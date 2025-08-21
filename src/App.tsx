@@ -1,7 +1,6 @@
 import { moods } from './data/moods.ts'
 // import type { MoodType } from './types/MoodType.ts';
 // import type { WorkType } from './types/WorkType'
-import { SMART_TAGS } from './types/SmartTag.ts'
 import './App.css'
 import { calculateRecommendationScore, type Recommendation } from './utils/recommendationUtils.ts';
 import { groupActivitiesByDay } from './utils/moodUtils.ts';
@@ -19,6 +18,7 @@ import { useWorkStore } from './stores/workStore.ts';
 import { useFilterStore } from './stores/filterStore.ts';
 import { useMoodStore } from './stores/moodStore.ts';
 import { useUIStore } from './stores/uiStore.ts';
+import SmartTagSelector from './components/SmartTagSelector.tsx';
 
 function App() {
   // Refs for the filter menu and its toggle button
@@ -158,20 +158,12 @@ function App() {
       <Buttons moods={moods} activeMoods={todayMoods} />
 
       {/* Smart Tag Toggles */}
-      <div className="flex justify-center items-center gap-4 m-4 px-8">
-        {SMART_TAGS.map(tag => (
-          <button
-            key={tag}
-            onClick={() => toggleSmartTag(tag)}
-            className={`px-3 py-1 text-sm rounded-full transition-colors ${
-              activeSmartTags.includes(tag)
-                ? 'bg-purple-500 text-white font-semibold'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
-            }`}
-          >
-            {tag.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-          </button>
-        ))}
+      <div className="max-w-6xl mx-auto px-8 m-4">
+        <SmartTagSelector
+          activeTags={activeSmartTags}
+          onTagToggle={toggleSmartTag}
+          className="flex flex-wrap justify-center gap-2"
+        />
       </div>
 
 
