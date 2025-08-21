@@ -1,17 +1,19 @@
 import { create } from 'zustand';
 import type { FilterState } from '../types/FilterState';
+import type { SmartTag } from '../types/SmartTag';
 
 const initialFilters: FilterState = {
   status: 'all',
   category: 'all',
   isFavorite: false,
+  searchQuery: '',
 };
 
 interface FilterStoreState {
   filters: FilterState;
-  activeSmartTags: string[];
+  activeSmartTags: SmartTag[];
   setFilters: (newFilters: Partial<FilterState>) => void;
-  toggleSmartTag: (tag: string) => void;
+  toggleSmartTag: (tag: SmartTag) => void;
   resetAllFilters: () => void;
 }
 

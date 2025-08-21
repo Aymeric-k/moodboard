@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Cursor AI rules and temporary files
+.cursor/
+.cursorrules
+.cursor-rules
+*.mdc
+
+# Temporary documentation files (keep organized docs in docs/ folder)
+*.md
+!docs/**/*.md
+!README.md
+
+# Build artifacts and temporary files
+*.zip
+src.zip

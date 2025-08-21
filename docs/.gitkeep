@@ -1,0 +1,2 @@
+# Ce fichier assure que le dossier docs soit toujours versionné
+# Même s'il est vide, Git conservera la structure du dossier

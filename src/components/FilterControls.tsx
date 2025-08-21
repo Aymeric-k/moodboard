@@ -1,6 +1,7 @@
 import type { FilterState } from '../types/FilterState';
 import { useFilterStore } from "../stores/filterStore";
 import type { WorkCategory } from '../types/WorkType';
+import { useState, useEffect } from 'react';
 
 interface FilterControlsProps {
   categories: WorkCategory[];
@@ -8,6 +9,19 @@ interface FilterControlsProps {
 
 export default function FilterControls({ categories }: FilterControlsProps) {
   const { filters, setFilters, resetAllFilters } = useFilterStore();
+  const [searchInput, setSearchInput] = useState(filters.searchQuery);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== filters.searchQuery) {
+        setFilters({ searchQuery: searchInput });
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, filters.searchQuery, setFilters]);
+
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters({ status: e.target.value as FilterState['status'] });
   };
@@ -20,8 +34,30 @@ export default function FilterControls({ categories }: FilterControlsProps) {
     setFilters({ isFavorite: !filters.isFavorite });
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
+
   return (
     <div className="w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-4 flex flex-col gap-4">
+      {/* Search Filter */}
+      <div className="flex flex-col">
+        <label htmlFor="search-filter" className="text-xs text-slate-400 mb-1">Search</label>
+        <div className="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+          </svg>
+          <input
+            id="search-filter"
+            type="text"
+            placeholder="Search titles & notes..."
+            value={searchInput}
+            onChange={handleSearchChange}
+            className="w-full bg-slate-700 text-white rounded-md pl-10 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-slate-400"
+          />
+        </div>
+      </div>
+
       {/* Status Filter */}
       <div className="flex flex-col">
         <label htmlFor="status-filter" className="text-xs text-slate-400 mb-1">Status</label>

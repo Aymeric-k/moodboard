@@ -96,10 +96,10 @@ function App() {
     works.forEach(work => {
       // Only calculate scores for works that have at least one matching mood or tag
       const hasMoodMatch = work.moodId.some(id => todayMoods.includes(id));
-      const hasTagMatch = work.smartTags?.some(tag => activeSmartTags.includes(tag as any));
+      const hasTagMatch = work.smartTags?.some(tag => activeSmartTags.includes(tag));
 
       if (hasMoodMatch || hasTagMatch) {
-        const recommendation = calculateRecommendationScore({ work, todayMoods, activeSmartTags: activeSmartTags as any, allMoods: moods });
+        const recommendation = calculateRecommendationScore({ work, todayMoods, activeSmartTags, allMoods: moods });
         if (recommendation.score > -Infinity) {
           recommendations.set(work.id, recommendation);
         }
@@ -116,7 +116,13 @@ function App() {
       const statusMatch = filters.status === 'all' || work.status === filters.status;
       const categoryMatch = filters.category === 'all' || work.category === filters.category;
       const favoriteMatch = !filters.isFavorite || work.isFavorite;
-      return statusMatch && categoryMatch && favoriteMatch;
+
+      // 2. Apply search filter (case-insensitive)
+      const searchMatch = !filters.searchQuery ||
+        work.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        (work.notes && work.notes.toLowerCase().includes(filters.searchQuery.toLowerCase()));
+
+      return statusMatch && categoryMatch && favoriteMatch && searchMatch;
     });
 
     // 2. If recommendations are active, sort by score. Otherwise, sort by creation date.
