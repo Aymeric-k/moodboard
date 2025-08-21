@@ -38,7 +38,7 @@ function WorkCard({backlogWork, activeMoods, moods, isPromptingForProgress, reco
   // Local state to manage form changes
   const [editedWork, setEditedWork] = useState(backlogWork);
   const { updateWork } = useWorkStore();
-  const { openDeleteModal, setWorkToPromptForProgress } = useUIStore();
+  const { openDeleteModal, setWorkToPromptForProgress, openNotesModal } = useUIStore();
 
   /**
    * Determines the correct status of a work based on its progress.
@@ -383,11 +383,40 @@ function WorkCard({backlogWork, activeMoods, moods, isPromptingForProgress, reco
             <h2 className="text-xl font-bold text-gray-100">{backlogWork.title}</h2>
             <p className="text-md text-gray-400 mt-1 capitalize">{backlogWork.category.replace('-', ' ')}</p>
 
-            {backlogWork.notes && (
-              <p className="text-sm text-slate-300 mt-3 text-left italic border-l-2 border-slate-600 pl-3 max-h-24 overflow-y-auto">
-                {backlogWork.notes}
-              </p>
-            )}
+            <div className="mt-3">
+              {backlogWork.notes ? (
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm text-slate-300 text-left italic border-l-2 border-slate-600 pl-3 flex-1 max-h-24 overflow-y-auto">
+                    {backlogWork.notes.length > 150
+                      ? `${backlogWork.notes.substring(0, 150)}...`
+                      : backlogWork.notes
+                    }
+                  </p>
+                  <button
+                    onClick={() => openNotesModal(backlogWork.id)}
+                    className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 rounded transition-colors flex-shrink-0"
+                    title={backlogWork.notes.length > 150 ? "View full notes" : "Edit notes"}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-slate-500 italic">No notes yet</p>
+                  <button
+                    onClick={() => openNotesModal(backlogWork.id)}
+                    className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 rounded transition-colors flex-shrink-0"
+                    title="Add notes"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
 
             {backlogWork.status === 'completed' ? (
               <div className="mt-4 text-green-400 flex items-center justify-center gap-2">

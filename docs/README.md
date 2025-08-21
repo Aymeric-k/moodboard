@@ -7,6 +7,8 @@ Ce dossier contient la documentation technique et les guides d'utilisation du pr
 ### Fonctionnalités
 
 - **[Recherche](./SEARCH_FEATURE.md)** - Système de recherche intégré aux filtres
+- **[SmartTags](./SMART_TAGS_ENHANCEMENT.md)** - Système de tags contextuels optimisé
+- **[NotesModal](./NOTES_MODAL.md)** - Édition des notes longues dans une modal spacieuse
 
 ### Architecture
 

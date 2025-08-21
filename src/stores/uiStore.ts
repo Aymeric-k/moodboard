@@ -6,6 +6,11 @@ interface UIState {
   openDeleteModal: (workId: string) => void;
   closeDeleteModal: () => void;
 
+  // Modal for editing notes
+  notesModalWorkId: string | null;
+  openNotesModal: (workId: string) => void;
+  closeNotesModal: () => void;
+
   // Prompt for updating progress
   workToPromptForProgressId: string | null;
   setWorkToPromptForProgress: (workId: string | null) => void;
@@ -20,6 +25,10 @@ export const useUIStore = create<UIState>((set) => ({
   workToDeleteId: null,
   openDeleteModal: (workId) => set({ workToDeleteId: workId }),
   closeDeleteModal: () => set({ workToDeleteId: null }),
+
+  notesModalWorkId: null,
+  openNotesModal: (workId) => set({ notesModalWorkId: workId }),
+  closeNotesModal: () => set({ notesModalWorkId: null }),
 
   workToPromptForProgressId: null,
   setWorkToPromptForProgress: (workId) => set({ workToPromptForProgressId: workId }),
