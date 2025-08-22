@@ -79,16 +79,20 @@ export const THEMES: Record<ThemeType, Theme> = {
   },
 };
 
+// Thème par défaut - mon préféré ! 🎨
+const DEFAULT_THEME: ThemeType = 'dark-blue';
+
 interface ThemeStoreState {
   currentTheme: ThemeType;
   setTheme: (theme: ThemeType) => void;
   getCurrentTheme: () => Theme;
+  initializeTheme: () => void;
 }
 
 export const useThemeStore = create<ThemeStoreState>()(
   persist(
     (set, get) => ({
-      currentTheme: 'dark-blue',
+      currentTheme: DEFAULT_THEME,
       setTheme: (theme: ThemeType) => {
         set({ currentTheme: theme });
         // Appliquer le thème immédiatement
@@ -98,10 +102,26 @@ export const useThemeStore = create<ThemeStoreState>()(
         const { currentTheme } = get();
         return THEMES[currentTheme];
       },
+      initializeTheme: () => {
+        const { currentTheme } = get();
+        // S'assurer qu'un thème est toujours appliqué
+        applyThemeToDOM(currentTheme);
+      },
     }),
     {
       name: 'moodboard-theme',
       storage: createJSONStorage(() => localStorage),
+      // Initialisation automatique avec fallback
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Si pas de thème sauvegardé, utiliser le défaut
+          if (!state.currentTheme) {
+            state.currentTheme = DEFAULT_THEME;
+          }
+          // Appliquer le thème immédiatement
+          applyThemeToDOM(state.currentTheme);
+        }
+      },
     }
   )
 );
@@ -109,6 +129,11 @@ export const useThemeStore = create<ThemeStoreState>()(
 // Fonction pour appliquer le thème au DOM
 function applyThemeToDOM(themeId: ThemeType) {
   const theme = THEMES[themeId];
+  if (!theme) {
+    console.warn(`Theme ${themeId} not found, falling back to default`);
+    themeId = DEFAULT_THEME;
+  }
+  
   const body = document.body;
   const appRoot = document.getElementById('app-root');
 
@@ -151,20 +176,50 @@ function applyThemeToDOM(themeId: ThemeType) {
   body.classList.add(`theme-${themeId}`);
 }
 
-// Initialiser le thème au chargement
+// Initialisation robuste du thème au chargement
 if (typeof window !== 'undefined') {
-  const savedTheme = localStorage.getItem('moodboard-theme');
-  if (savedTheme) {
-    try {
-      const parsed = JSON.parse(savedTheme);
-      if (parsed.state?.currentTheme) {
-        applyThemeToDOM(parsed.state.currentTheme);
+  // Attendre que le DOM soit prêt
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Essayer de récupérer le thème sauvegardé
+      const savedTheme = localStorage.getItem('moodboard-theme');
+      if (savedTheme) {
+        try {
+          const parsed = JSON.parse(savedTheme);
+          const savedThemeId = parsed.state?.currentTheme as ThemeType;
+          if (savedThemeId && THEMES[savedThemeId]) {
+            applyThemeToDOM(savedThemeId);
+          } else {
+            applyThemeToDOM(DEFAULT_THEME);
+          }
+        } catch (error) {
+          console.warn('Failed to parse saved theme, using default:', error);
+          applyThemeToDOM(DEFAULT_THEME);
+        }
+      } else {
+        // Première visite - appliquer le thème par défaut
+        applyThemeToDOM(DEFAULT_THEME);
       }
-    } catch {
-      console.warn('Failed to parse saved theme, using default');
-      applyThemeToDOM('dark-blue');
-    }
+    });
   } else {
-    applyThemeToDOM('dark-blue');
+    // DOM déjà prêt
+    const savedTheme = localStorage.getItem('moodboard-theme');
+    if (savedTheme) {
+      try {
+        const parsed = JSON.parse(savedTheme);
+        const savedThemeId = parsed.state?.currentTheme as ThemeType;
+        if (savedThemeId && THEMES[savedThemeId]) {
+          applyThemeToDOM(savedThemeId);
+        } else {
+          applyThemeToDOM(DEFAULT_THEME);
+        }
+      } catch (error) {
+        console.warn('Failed to parse saved theme, using default:', error);
+        applyThemeToDOM(DEFAULT_THEME);
+      }
+    } else {
+      // Première visite - appliquer le thème par défaut
+      applyThemeToDOM(DEFAULT_THEME);
+    }
   }
 }

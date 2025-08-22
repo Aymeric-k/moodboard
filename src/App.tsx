@@ -23,6 +23,7 @@ import { useMoodStore } from './stores/moodStore.ts';
 import { useUIStore } from './stores/uiStore.ts';
 import SmartTagSelector from './components/SmartTagSelector.tsx';
 import PerformanceProfiler from './components/PerformanceProfiler.tsx';
+import { useThemeStore } from './stores/themeStore';
 
 function App() {
   // Refs for the filter menu and its toggle button
@@ -41,6 +42,8 @@ function App() {
     closeFilterMenu
   } = useUIStore();
 
+  const { initializeTheme } = useThemeStore();
+
   // Detect mobile screen size
   const [isMobile, setIsMobile] = useState(false);
 
@@ -53,6 +56,12 @@ function App() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Initialiser le thème au chargement
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
+
   const todayMoods = todayMoodsData.moods;
 
   // Hook to close the filter menu when clicking outside
