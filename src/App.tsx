@@ -253,7 +253,7 @@ function App() {
           </button>
         </div>
 
-        <AnimatePresence>
+        <AnimatePresence key="filter-menu">
           {isFilterMenuOpen && (
             <motion.div
               ref={filterMenuRef}
@@ -283,7 +283,7 @@ function App() {
 
         <PerformanceProfiler id="work-cards-container">
           {displayedWorks.length > 0 ? (
-            <AnimatePresence>
+            <AnimatePresence key="work-cards" mode="wait">
               {displayedWorks.map((work) => (
                 <PerformanceProfiler key={work.id} id={`work-card-${work.id}`}>
                   <WorkCard
@@ -305,9 +305,12 @@ function App() {
         </PerformanceProfiler>
       </motion.div>
 
-      <AnimatePresence>
-        {/* The modal now controls its own visibility based on the uiStore */}
+      {/* Modales avec AnimatePresence séparés pour éviter les conflits */}
+      <AnimatePresence key="confirmation-modal">
         <ConfirmationModal />
+      </AnimatePresence>
+
+      <AnimatePresence key="notes-modal">
         <NotesModal />
       </AnimatePresence>
     </div>
