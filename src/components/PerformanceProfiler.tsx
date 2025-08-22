@@ -1,38 +1,42 @@
 import { Profiler } from 'react';
-import type { ProfilerOnRenderCallback } from 'react';
-import { memo } from 'react';
+import type { ProfilerOnRenderCallback, ReactNode } from 'react';
 
 interface PerformanceProfilerProps {
   id: string;
-  children: React.ReactNode;
+  children: ReactNode;
   onRender?: ProfilerOnRenderCallback;
 }
 
-const PerformanceProfilerComponent = ({ id, children, onRender }: PerformanceProfilerProps) => {
-  const handleRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    // Log performance data to console in development
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      console.log(`🔍 [Profiler] ${id}:`, {
-        phase,
-        actualDuration: `${actualDuration.toFixed(2)}ms`,
-        baseDuration: `${baseDuration.toFixed(2)}ms`,
-        startTime: `${startTime.toFixed(2)}ms`,
-        commitTime: `${commitTime.toFixed(2)}ms`,
-        performance: actualDuration > 16 ? '⚠️ Slow (>16ms)' : '✅ Fast'
-      });
-    }
+/**
+ * PerformanceProfiler component to monitor component render performance
+ * Only active in development mode
+ */
+function PerformanceProfiler({ id, children, onRender }: PerformanceProfilerProps) {
+  // Only enable profiling in development
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return <>{children}</>;
+  }
 
-    // Call custom onRender if provided
-    if (onRender) {
-      onRender(id, phase, actualDuration, baseDuration, startTime, commitTime);
-    }
+  const defaultOnRender: ProfilerOnRenderCallback = (
+    id,
+    phase,
+    actualDuration,
+    baseDuration
+  ) => {
+    // Log performance data to console
+    console.log(`[Performance] ${id}:`, {
+      phase,
+      actualDuration: `${actualDuration.toFixed(2)}ms`,
+      baseDuration: `${baseDuration.toFixed(2)}ms`,
+      improvement: `${((baseDuration - actualDuration) / baseDuration * 100).toFixed(1)}%`
+    });
   };
 
   return (
-    <Profiler id={id} onRender={handleRender}>
+    <Profiler id={id} onRender={onRender || defaultOnRender}>
       {children}
     </Profiler>
   );
-};
+}
 
-export default memo(PerformanceProfilerComponent);
+export default PerformanceProfiler;

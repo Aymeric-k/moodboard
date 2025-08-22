@@ -1,216 +1,186 @@
 # Performance Optimization
 
-## Vue d'ensemble
+## Overview
 
-Ce document décrit les optimisations de performance implémentées dans l'application pour prévenir les problèmes de performance futurs et améliorer l'expérience utilisateur.
+This document outlines the performance optimizations implemented in the Moodboard application to ensure smooth user experience and efficient rendering.
 
-## Optimisations Implémentées
+## React.memo Implementation
 
-### 1. React.memo sur les Composants
+### Components with React.memo
 
-#### WorkCard
+- **WorkCard**: Prevents re-renders when props haven't changed
+- **AddWorkCard**: Optimized for form interactions
+- **FilterControls**: Stable filtering interface
+- **SmartTagSelector**: Efficient tag selection
 
-- **Avant** : Re-render à chaque changement de props
-- **Après** : Re-render uniquement quand les props changent réellement
-- **Optimisations** :
-  - Toutes les fonctions de callback sont mémorisées avec `useCallback`
-  - Props stables pour éviter les re-créations d'objets
+### Benefits
 
-#### AddWorkCard
+- Prevents unnecessary re-renders of child components
+- Maintains component state during parent updates
+- Improves overall application responsiveness
 
-- **Avant** : Re-render à chaque changement d'état
-- **Après** : Re-render uniquement quand nécessaire
-- **Optimisations** :
-  - Callbacks mémorisés pour les événements
-  - État local optimisé
+## useMemo Optimizations
 
-#### FilterControls
+### Heavy Calculations
 
-- **Avant** : Re-render à chaque changement de filtres
-- **Après** : Re-render uniquement quand les filtres changent
-- **Optimisations** :
-  - Callbacks mémorisés pour les changements de filtres
-  - Debounce optimisé pour la recherche
-
-### 2. useMemo Avancés dans App.tsx
-
-#### dailyActivities
-
-```tsx
-const dailyActivities = useMemo(() => {
-  // Calculs lourds mémorisés
-  const data = groupActivitiesByDay(historicalEvents, works, progressEvents)
-  // ... logique complexe
-  return data
-}, [historicalEvents, todayMoods, works, progressEvents])
-```
-
-#### recommendedWorks
-
-```tsx
+```typescript
+// Optimized recommendations calculation with early return
 const recommendedWorks = useMemo(() => {
-  // Early return pour éviter les calculs inutiles
   if (todayMoods.length === 0 && activeSmartTags.length === 0) {
-    return null
+    return null // Early return for better performance
   }
-
-  // Utilisation de Sets pour des recherches O(1)
-  const todayMoodsSet = new Set(todayMoods)
-  const activeSmartTagsSet = new Set(activeSmartTags)
-
-  // ... calculs optimisés
+  // ... calculation logic
 }, [works, todayMoods, activeSmartTags, moods])
-```
 
-#### displayedWorks
-
-```tsx
+// Optimized displayed works with memoized filters
 const displayedWorks = useMemo(() => {
-  // Filtrage optimisé avec early return pour la recherche
-  let filteredWorks = [...works]
-
-  // Filtres appliqués de manière optimisée
-  if (filters.searchQuery) {
-    const searchLower = filters.searchQuery.toLowerCase()
-    // ... logique de recherche
-  }
-
-  // Tri conditionnel basé sur les recommandations
-  if (recommendedWorks && recommendedWorks.size > 0) {
-    // Tri par score
-  } else {
-    // Tri par date de création
-  }
-
-  return filteredWorks
+  // ... filtering and sorting logic
 }, [works, filters, recommendedWorks])
 ```
 
-### 3. PerformanceProfiler
+### Memoized Values
 
-#### Composant de Profilage
+- **uniqueCategories**: Prevents recalculation of work categories
+- **containerKey**: Stable key for animation container
+- **dailyActivities**: Optimized heatmap data processing
 
-- **Fonctionnalité** : Mesure des temps de rendu en temps réel
-- **Utilisation** : Wrapper autour des composants critiques
-- **Logs** : Console en développement pour identifier les goulots d'étranglement
+## Custom Performance Hooks
 
-#### Intégration
+### useStableValue
 
-```tsx
+```typescript
+// Stabilizes object/array references to prevent unnecessary re-renders
+const stableFilters = useStableValue(filters)
+```
+
+### useStableCallback
+
+```typescript
+// Stabilizes callback functions to prevent child re-renders
+const stableHandleSubmit = useStableCallback(handleSubmit)
+```
+
+## Performance Profiling
+
+### PerformanceProfiler Component
+
+- Monitors component render performance in development
+- Logs render duration and improvement metrics
+- Only active in development mode
+
+### Usage
+
+```typescript
 <PerformanceProfiler id='work-cards-container'>
   {displayedWorks.map((work) => (
-    <PerformanceProfiler key={work.id} id={`work-card-${work.id}`}>
-      <WorkCard {...workProps} />
-    </PerformanceProfiler>
+    <WorkCard key={work.id} {...work} />
   ))}
 </PerformanceProfiler>
 ```
 
-### 4. Hook useStableValue
+## Zustand Store Optimizations
 
-#### Fonctionnalité
+### Store Structure
 
-- Évite les re-renders causés par des objets créés à chaque render
-- Comparaison personnalisable des valeurs
-- Mémorisation des références d'objets
+- Efficient state updates with minimal re-renders
+- Persistent storage with localStorage
+- Optimized selectors for specific data access
 
-#### Utilisation
+### Best Practices
 
-```tsx
-const stableValue = useStableValue(complexObject, deepEqual)
-```
+- Use specific selectors instead of accessing entire store
+- Implement shallow comparison for object updates
+- Leverage immer for immutable state updates
 
-## Impact des Optimisations
+## Animation Performance
 
-### Avant
+### Framer Motion Optimizations
 
-- **WorkCards** : Re-render à chaque changement de mood/tags
-- **Filtres** : Re-calculs inutiles des listes
-- **Recherche** : Filtrage à chaque frappe
-- **Recommandations** : Calculs répétés
+- **layout**: Efficient layout animations
+- **staggerChildren**: Smooth staggered animations
+- **AnimatePresence**: Optimized exit animations
 
-### Après
+### CSS Transitions
 
-- **WorkCards** : Re-render uniquement quand nécessaire
-- **Filtres** : Calculs mémorisés et optimisés
-- **Recherche** : Debounce + filtrage optimisé
-- **Recommandations** : Calculs mémorisés avec early return
+- Hardware-accelerated transforms
+- Efficient opacity and scale animations
+- Smooth hover and focus states
 
-## Métriques de Performance
+## Mobile Performance
 
-### React DevTools Profiler
+### Touch Optimizations
 
-- **Temps de rendu** : Affiché en temps réel
-- **Composants lents** : Identifiés automatiquement
-- **Re-renders** : Traqués et optimisés
+- Larger touch targets (min 44px)
+- Efficient scroll handling
+- Optimized mobile-specific animations
 
-### Console Logs
+### Responsive Breakpoints
 
-- **Format** : `🔍 [Profiler] {id}: {metrics}`
-- **Seuils** : ⚠️ Slow (>16ms) vs ✅ Fast
-- **Métriques** : actualDuration, baseDuration, startTime, commitTime
+- Mobile-first approach
+- Efficient grid layouts
+- Optimized image loading
 
-## Bonnes Pratiques Appliquées
+## Bundle Optimization
 
-### 1. Mémorisation des Callbacks
+### Code Splitting
 
-```tsx
-const handleClick = useCallback(() => {
-  // Logique du handler
-}, [dependencies])
-```
+- Lazy loading of heavy components
+- Efficient import strategies
+- Tree shaking for unused code
 
-### 2. Mémorisation des Calculs Lourds
+### Asset Optimization
 
-```tsx
-const expensiveValue = useMemo(() => {
-  return heavyCalculation(data)
-}, [data])
-```
+- Optimized SVG icons
+- Efficient image formats
+- Minimal CSS bundle size
 
-### 3. Props Stables
+## Monitoring and Debugging
 
-```tsx
-// ❌ Création d'objet à chaque render
-;<Component config={{ key: 'value' }} />
+### Development Tools
 
-// ✅ Objet mémorisé
-const stableConfig = useMemo(() => ({ key: 'value' }), [])
-;<Component config={stableConfig} />
-```
+- React DevTools Profiler
+- Performance tab in browser
+- Console logging for performance metrics
 
-### 4. Early Returns
+### Performance Metrics
 
-```tsx
-const result = useMemo(() => {
-  if (shouldSkip) return defaultValue
-  // ... calculs lourds
-}, [dependencies])
-```
+- Render duration tracking
+- Re-render frequency monitoring
+- Memory usage optimization
 
-## Monitoring et Maintenance
+## Future Optimizations
 
-### Outils Recommandés
+### Planned Improvements
 
-1. **React DevTools Profiler** : Analyse des performances
-2. **Console Logs** : Métriques en temps réel
-3. **Bundle Analyzer** : Taille des bundles
-4. **Lighthouse** : Métriques globales
+- Virtual scrolling for large lists
+- Service Worker for offline support
+- Image lazy loading and optimization
+- Advanced memoization strategies
 
-### Métriques à Surveiller
+### Performance Budgets
 
-- Temps de rendu des composants
-- Nombre de re-renders
-- Taille des bundles
-- Temps de chargement initial
+- Target render times: < 16ms
+- Maximum bundle size: < 500KB
+- Optimal re-render frequency: < 5 per second
 
-### Optimisations Futures
+## Best Practices
 
-- **Lazy Loading** : Composants chargés à la demande
-- **Code Splitting** : Division des bundles
-- **Virtual Scrolling** : Pour les longues listes
-- **Service Workers** : Mise en cache avancée
+### Do's
+
+- ✅ Use React.memo for expensive components
+- ✅ Implement useMemo for heavy calculations
+- ✅ Leverage useCallback for stable references
+- ✅ Monitor performance in development
+- ✅ Optimize for mobile devices
+
+### Don'ts
+
+- ❌ Avoid unnecessary state updates
+- ❌ Don't create objects in render
+- ❌ Avoid inline function definitions
+- ❌ Don't ignore performance warnings
+- ❌ Avoid heavy operations in render
 
 ## Conclusion
 
-Ces optimisations garantissent que l'application reste performante même avec une croissance du nombre d'œuvres et d'utilisateurs. L'utilisation de React.memo, useMemo et useCallback évite les re-renders inutiles, tandis que le PerformanceProfiler permet de surveiller et d'optimiser en continu.
+These optimizations ensure the Moodboard application maintains excellent performance across all devices and use cases. Regular monitoring and profiling help identify areas for further improvement.

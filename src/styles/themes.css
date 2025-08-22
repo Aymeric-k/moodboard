@@ -1,0 +1,112 @@
+/* Variables CSS custom properties pour les thèmes */
+body {
+  /* Thème par défaut (Dark Blue) */
+  --color-primary: #1e293b;
+  --color-secondary: #334155;
+  --color-accent: #3b82f6;
+  --color-surface: #1e293b;
+  --color-text: #e2e8f0;
+  --color-text-secondary: #cbd5e1;
+}
+
+/* Thème Purple */
+.theme-purple {
+  --color-primary: #581c87;
+  --color-secondary: #7c3aed;
+  --color-accent: #a855f7;
+  --color-surface: #3730a3;
+  --color-text: #c7d2fe;
+  --color-text-secondary: #a5b4fc;
+}
+
+/* Thème Green */
+.theme-green {
+  --color-primary: #166534;
+  --color-secondary: #16a34a;
+  --color-accent: #22c55e;
+  --color-surface: #14532d;
+  --color-text: #bbf7d0;
+  --color-text-secondary: #86efac;
+}
+
+/* Thème Orange */
+.theme-orange {
+  --color-primary: #9a3412;
+  --color-secondary: #ea580c;
+  --color-accent: #f97316;
+  --color-surface: #7c2d12;
+  --color-text: #fed7aa;
+  --color-text-secondary: #fdba74;
+}
+
+/* Thème Rose */
+.theme-rose {
+  --color-primary: #be185d;
+  --color-secondary: #e11d48;
+  --color-accent: #f43f5e;
+  --color-surface: #be185d;
+  --color-text: #fecdd3;
+  --color-text-secondary: #fda4af;
+}
+
+/* Classes utilitaires pour les thèmes */
+.text-theme-text {
+  color: var(--color-text);
+}
+
+.text-theme-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.bg-theme-surface {
+  background-color: var(--color-surface);
+}
+
+.border-theme-secondary {
+  border-color: var(--color-secondary);
+}
+
+.bg-theme-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-theme-accent {
+  background-color: var(--color-accent);
+}
+
+.text-theme-primary {
+  color: var(--color-primary);
+}
+
+.text-theme-accent {
+  color: var(--color-accent);
+}
+
+.border-theme-primary {
+  border-color: var(--color-primary);
+}
+
+.border-theme-accent {
+  border-color: var(--color-accent);
+}
+
+/* Classes de dégradé personnalisées (pas de conflit avec Tailwind) */
+.gradient-dark-blue {
+  background: linear-gradient(180deg, #010723 20%, #041b51 100%);
+}
+
+.gradient-purple {
+  background: linear-gradient(180deg, #0f0a1a 20%, #4338ca 100%);
+}
+
+.gradient-green {
+  background: linear-gradient(180deg, #02140a 20%, #166534 100%);
+}
+
+.gradient-orange {
+  background: linear-gradient(180deg, #1c0a01 20%, #6f2a06 100%);
+}
+
+.gradient-rose {
+  background: linear-gradient(180deg, #2a0a1a 20%, #910d44 100%);
+}

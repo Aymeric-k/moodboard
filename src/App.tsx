@@ -2,6 +2,7 @@ import { moods } from './data/moods.ts'
 // import type { MoodType } from './types/MoodType.ts';
 // import type { WorkType } from './types/WorkType'
 import './App.css'
+import './styles/themes.css'
 import { calculateRecommendationScore, type Recommendation } from './utils/recommendationUtils.ts';
 import { groupActivitiesByDay } from './utils/moodUtils.ts';
 import Buttons from './components/Buttons'
@@ -11,6 +12,7 @@ import NotesModal from './components/NotesModal.tsx'
 import AddWorkCard from './components/AddWorkCard.tsx'
 import FilterControls from './components/FilterControls.tsx'
 import { YearlyHeatmap } from './components/YearlyHeatmap.tsx'
+import { ThemeSelector } from './components/ThemeSelector.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EmptyState } from './components/EmptyState.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -185,8 +187,14 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-slate-900 to-blue-950`}>
-      <h1 className="text-3xl font-bold text-center pt-10 text-gray-100 px-4 sm:text-2xl sm:pt-6">How are you feeling today?</h1>
+    <div id="app-root" className="min-h-screen">
+      <h1 className="text-3xl font-bold text-center pt-10 text-theme-text px-4 sm:text-2xl sm:pt-6">How are you feeling today?</h1>
+
+      {/* Theme Selector - Positionné en haut à droite */}
+      <div className="fixed top-0 right-2 z-50 flex justify-center items-center">
+        <ThemeSelector />
+      </div>
+
       <Buttons moods={moods} activeMoods={todayMoods} />
 
       {/* Smart Tag Toggles */}
@@ -198,71 +206,72 @@ function App() {
         />
       </div>
 
+      {/* New Filter Bar and Button */}
+      <div className="max-w-7xl mx-auto px-8 mt-4 mb-8 sm:px-4 sm:mb-6">
+        <div className="relative">
+          <hr className="border-t-2 border-theme-secondary" />
+        </div>
+      </div>
 
       {/* On affiche la nouvelle heatmap, plus discrète et alignée à droite */}
-      <div className="flex justify-center px-8 mb-4 overflow-x-auto sm:px-4">
+      <div className="flex justify-center px-8 mb-4 overflow-x-hidden sm:px-4">
         <YearlyHeatmap
           dailyData={dailyActivities}
           moods={moods}
         />
       </div>
 
-      <h2 className="text-2xl font-bold text-center pt-6 text-gray-200 px-4 sm:text-xl sm:pt-4">What do you want to do?</h2>
-
-      {/* New Filter Bar and Button */}
-      <div className="max-w-7xl mx-auto px-8 mt-4 mb-8 sm:px-4 sm:mb-6">
-        <div className="relative">
-          <hr className="border-t-2 border-slate-700" />
-          <div className="absolute top-3.5 right-0 flex justify-end">
-            <button
-              ref={filterButtonRef}
-              onClick={toggleFilterMenu}
-              className="flex items-center gap-2 px-4 py-1.5 bg-slate-800/50 border border-slate-700 rounded-full text-sm text-slate-300 hover:bg-slate-700/80 hover:border-slate-600 transition-all"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 12.414V17a1 1 0 01-1.447.894l-2-1A1 1 0 018 16v-3.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
-              </svg>
-              <span>Filter</span>
-            </button>
-          </div>
-
-          <AnimatePresence>
-            {isFilterMenuOpen && (
-              <motion.div
-                ref={filterMenuRef}
-                initial={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10 }}
-                animate={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
-                exit={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10, transition: { duration: 0.15 } }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className={isMobile
-                  ? "fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center"
-                  : "absolute top-full right-0 mt-2 z-30"
-                }
-              >
-                {isMobile && (
-                  <motion.button
-                    onClick={closeFilterMenu}
-                    className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </motion.button>
-                )}
-                <FilterControls categories={uniqueCategories} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold text-center pt-6 text-theme-text px-4 sm:text-xl sm:pt-4">What do you want to do?</h2>
 
       <motion.div
         key={containerKey} // A key that changes when moods or tags change
-        className='flex flex-wrap justify-center gap-10 p-8 max-w-7xl mx-auto'
+        className='relative flex flex-wrap justify-center gap-8 p-4 max-w-7xl mx-auto'
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
+        {/* Filter Button - Positionné en haut à droite du container des WorkCards */}
+        <div className="absolute -top-6 right-4 z-20">
+          <button
+            ref={filterButtonRef}
+            onClick={toggleFilterMenu}
+            className="flex items-center gap-2 px-4 py-1.5 bg-theme-surface/50 border border-theme-secondary rounded-full text-sm text-theme-text hover:bg-theme-secondary/80 hover:border-theme-primary transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 12.414V17a1 1 0 01-1.447.894l-2-1A1 1 0 018 16v-3.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+            </svg>
+            <span>Filter</span>
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {isFilterMenuOpen && (
+            <motion.div
+              ref={filterMenuRef}
+              initial={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10 }}
+              animate={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
+              exit={isMobile ? { opacity: 0, x: '100%' } : { opacity: 0, y: -10, transition: { duration: 0.15 } }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              className={isMobile
+                ? "fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center"
+                : "absolute top-12 right-8 z-30"
+              }
+            >
+              {isMobile && (
+                <motion.button
+                  onClick={closeFilterMenu}
+                  className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
+              )}
+              <FilterControls categories={uniqueCategories} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <PerformanceProfiler id="work-cards-container">
           {displayedWorks.length > 0 ? (
             <AnimatePresence>

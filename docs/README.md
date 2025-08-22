@@ -1,95 +1,212 @@
 # Moodboard v4 - Documentation
 
-## Vue d'ensemble
+## Overview
 
-Moodboard v4 est une application React moderne pour gérer une collection personnelle d'œuvres (livres, films, séries, jeux vidéo, musique) avec un système de recommandations basé sur l'humeur et des tags intelligents.
+Moodboard v4 is a React-based application for managing personal media backlog with mood-based recommendations and smart filtering. Built with modern web technologies and optimized for performance across all devices.
 
-## Fonctionnalités Principales
+## Features
 
-- **Gestion d'œuvres** : Ajout, édition, suivi de progression
-- **Système d'humeur** : Sélection quotidienne d'humeurs
-- **SmartTags** : Tags contextuels (temps, social)
-- **Recommandations** : Suggestions basées sur l'humeur et les tags
-- **Filtres avancés** : Recherche, statut, catégorie, favoris
-- **Heatmap annuelle** : Visualisation de l'activité
-- **Interface responsive** : Optimisée mobile et desktop
+### Core Functionality
 
-## Documentation Technique
+- **Work Management**: Add, edit, and track progress on books, movies, games, and more
+- **Mood-Based System**: Associate works with current moods for personalized recommendations
+- **Smart Tags**: Contextual tags for time and social context
+- **Progress Tracking**: Monitor completion status and progress percentage
+- **Search & Filtering**: Advanced filtering with search capabilities
 
-### Fonctionnalités
+### Advanced Features
 
-- [**Recherche**](SEARCH_FEATURE.md) - Système de recherche intégré
-- [**SmartTags**](SMART_TAGS_ENHANCEMENT.md) - Système de tags contextuels
-- [**NotesModal**](NOTES_MODAL.md) - Édition de notes longues
-- [**EmptyState**](EMPTY_STATE_ENHANCEMENT.md) - Messages contextuels intelligents
-- [**WorkCard Layout**](WORKCARD_LAYOUT_IMPROVEMENT.md) - Améliorations de l'affichage
-- [**Mobile Responsiveness**](MOBILE_RESPONSIVENESS.md) - Optimisation mobile/tablette
-- [**Desktop Layout Fix**](DESKTOP_LAYOUT_FIX.md) - Corrections du layout desktop
+- **Notes System**: Rich text editing with modal support for long notes
+- **Yearly Heatmap**: Visual representation of daily activities and mood patterns
+- **Theme System**: 5 beautiful color themes with smooth transitions
+- **Mobile Optimization**: Responsive design with touch-friendly interactions
+- **Performance Monitoring**: Built-in profiling and optimization tools
 
-### Performance et Optimisation
+## Technical Stack
 
-- [**Performance Optimization**](PERFORMANCE_OPTIMIZATION.md) - Optimisations React.memo et useMemo
+### Frontend
 
-### Tests et Qualité
+- **React 18**: Latest React features with hooks and concurrent rendering
+- **TypeScript**: Full type safety and developer experience
+- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Framer Motion**: Smooth animations and transitions
 
-- [**Mobile Testing**](MOBILE_TESTING.md) - Guide de test mobile
+### State Management
+
+- **Zustand**: Lightweight state management with persistence
+- **Local Storage**: Data persistence across browser sessions
+- **Optimized Stores**: Efficient state updates and minimal re-renders
+
+### Performance
+
+- **React.memo**: Component memoization for optimal rendering
+- **useMemo/useCallback**: Hook optimization for expensive operations
+- **Performance Profiling**: Built-in monitoring and optimization tools
+- **Custom Hooks**: Stable value and callback optimization
 
 ## Architecture
 
-### Technologies
+### Component Structure
 
-- **Frontend** : React 18 + TypeScript + Tailwind CSS
-- **State Management** : Zustand
-- **Animations** : Framer Motion
-- **Build Tool** : Vite
-
-### Structure des Composants
-
-- **App.tsx** : Composant principal avec logique métier
-- **WorkCard** : Affichage et édition des œuvres
-- **AddWorkCard** : Formulaire d'ajout d'œuvres
-- **FilterControls** : Contrôles de filtrage
-- **SmartTagSelector** : Sélection de tags intelligents
-- **YearlyHeatmap** : Visualisation des données
-- **PerformanceProfiler** : Monitoring des performances
-
-### Stores Zustand
-
-- **workStore** : Gestion des œuvres
-- **moodStore** : Gestion des humeurs
-- **filterStore** : État des filtres
-- **uiStore** : État de l'interface
-
-## Démarrage Rapide
-
-```bash
-# Installation des dépendances
-npm install
-
-# Développement
-npm run dev
-
-# Build de production
-npm run build
+```
+src/
+├── components/          # Reusable UI components
+│   ├── WorkCard.tsx    # Individual work display/editing
+│   ├── AddWorkCard.tsx # Work creation form
+│   ├── FilterControls.tsx # Search and filtering
+│   ├── SmartTagSelector.tsx # Context tag selection
+│   ├── ThemeSelector.tsx # Theme switching
+│   ├── NotesModal.tsx  # Rich text editing
+│   ├── EmptyState.tsx  # Contextual empty states
+│   └── YearlyHeatmap.tsx # Activity visualization
+├── stores/             # Zustand state stores
+│   ├── workStore.ts    # Work data management
+│   ├── moodStore.ts    # Mood system
+│   ├── filterStore.ts  # Search and filters
+│   ├── uiStore.ts      # UI state management
+│   └── themeStore.ts   # Theme system
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── hooks/              # Custom React hooks
+└── styles/             # CSS and theme styles
 ```
 
-## Optimisations de Performance
+### State Management
 
-L'application utilise plusieurs techniques d'optimisation :
+- **workStore**: CRUD operations for works, progress tracking
+- **moodStore**: Mood selection, daily mood tracking
+- **filterStore**: Search queries, status/category filters
+- **uiStore**: Modal states, UI interactions
+- **themeStore**: Theme selection and application
 
-- **React.memo** sur les composants critiques
-- **useMemo** pour les calculs lourds
-- **useCallback** pour les fonctions de callback
-- **PerformanceProfiler** pour le monitoring
-- **Early returns** et **Sets** pour les algorithmes
+## Performance Optimizations
 
-## Contribution
+### React.memo Implementation
 
-1. Créer une branche feature : `git checkout -b feature/nom-feature`
-2. Développer et tester
-3. Commiter avec des messages conventionnels
-4. Merger dans `dev` puis dans `main`
+- All major components wrapped with React.memo
+- Prevents unnecessary re-renders
+- Maintains component state during updates
 
-## Licence
+### useMemo Optimizations
 
-Projet personnel - Formation Auto-Didacte
+- Heavy calculations memoized (recommendations, filtering)
+- Early returns for performance-critical paths
+- Efficient data structures (Sets for O(1) lookups)
+
+### Custom Performance Hooks
+
+- **useStableValue**: Stabilizes object references
+- **useStableCallback**: Prevents callback re-creation
+- **PerformanceProfiler**: Development performance monitoring
+
+## Theme System
+
+### Available Themes
+
+1. **Dark Blue**: Classic dark theme with blue accents
+2. **Purple**: Rich purple gradients and accents
+3. **Green**: Natural green tones and gradients
+4. **Orange**: Warm orange and amber colors
+5. **Rose**: Elegant rose and pink gradients
+
+### Implementation
+
+- CSS custom properties for dynamic theming
+- Smooth transitions between themes
+- Persistent theme selection
+- Background gradients and UI color coordination
+
+## Mobile Responsiveness
+
+### Design Approach
+
+- Mobile-first responsive design
+- Touch-friendly interactions (44px minimum targets)
+- Optimized layouts for small screens
+- Efficient mobile navigation patterns
+
+### Mobile-Specific Features
+
+- Drawer-based filter menu
+- Month-by-month heatmap view
+- Optimized touch interactions
+- Responsive grid layouts
+
+## Development Workflow
+
+### Git Strategy
+
+- **main**: Production-ready code
+- **dev**: Development and testing
+- **feature/\***: Individual feature development
+
+### Commit Conventions
+
+```
+type(scope): description
+
+Examples:
+feat(filter): add search functionality
+fix(theme): resolve color conflicts
+docs(performance): update optimization guide
+```
+
+### Code Quality
+
+- TypeScript strict mode
+- ESLint configuration
+- Prettier formatting
+- Performance monitoring
+
+## Performance Monitoring
+
+### Built-in Tools
+
+- **PerformanceProfiler**: Component render timing
+- **Console Logging**: Performance metrics in development
+- **React DevTools**: Profiler integration
+- **Performance Budgets**: Target metrics and thresholds
+
+### Metrics Tracked
+
+- Component render duration
+- Re-render frequency
+- Memory usage patterns
+- Animation performance
+
+## Future Roadmap
+
+### Planned Features
+
+- Virtual scrolling for large lists
+- Service Worker for offline support
+- Advanced analytics and insights
+- Social sharing and collaboration
+- API integration for external data
+
+### Performance Goals
+
+- Sub-16ms render times
+- <500KB bundle size
+- Optimal mobile performance
+- Efficient data handling
+
+## Contributing
+
+### Development Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+4. Build for production: `npm run build`
+
+### Code Standards
+
+- Follow TypeScript best practices
+- Use React hooks effectively
+- Implement performance optimizations
+- Maintain responsive design principles
+
+## Conclusion
+
+Moodboard v4 represents a modern, performant, and user-friendly approach to personal media management. With its comprehensive feature set, optimized performance, and beautiful design, it provides an excellent foundation for future development and user engagement.
