@@ -31,8 +31,7 @@ describe('filterStore', () => {
     // Reset les mocks
     vi.clearAllMocks();
 
-    // Initialiser les services
-    await useFilterStore.getState().initialize();
+    // Les services sont mockés, pas besoin d'initialiser
   });
 
   describe('setFilters', () => {

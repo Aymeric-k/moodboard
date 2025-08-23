@@ -27,8 +27,7 @@ describe('workStore', () => {
     // Reset les mocks
     vi.clearAllMocks();
 
-    // Initialiser les services
-    await useWorkStore.getState().initialize();
+          // Les services sont mockés, pas besoin d'initialiser
   });
 
   describe('addWork', () => {
