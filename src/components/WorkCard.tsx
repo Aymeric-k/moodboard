@@ -40,6 +40,8 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
   const [editedWork, setEditedWork] = useState(backlogWork);
   // État pour gérer l'interactivité mobile
   const [isMobileFocused, setIsMobileFocused] = useState(false);
+  // État local pour le favori (optimistic update)
+  const [localIsFavorite, setLocalIsFavorite] = useState(backlogWork.isFavorite);
   const { updateWork } = useWorkStore();
   const { openDeleteModal, setWorkToPromptForProgress, openNotesModal } = useUIStore();
 
@@ -72,6 +74,7 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
   useEffect(() => {
     setEditedWork(backlogWork);
     setCurrentProgress(backlogWork.progress);
+    setLocalIsFavorite(backlogWork.isFavorite);
   }, [backlogWork]);
 
   // Sync with the prompt prop from the parent
@@ -156,8 +159,20 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
   }, []);
 
   const handleToggleFavorite = useCallback(() => {
-    updateWork({ ...backlogWork, isFavorite: !backlogWork.isFavorite });
-  }, [backlogWork, updateWork]);
+    const newFavoriteState = !localIsFavorite;
+
+    console.log('🔄 Toggle favorite:', {
+      current: localIsFavorite,
+      new: newFavoriteState,
+      workId: backlogWork.id
+    });
+
+    // Optimistic update - changement immédiat
+    setLocalIsFavorite(newFavoriteState);
+
+    // Mise à jour via le service
+    updateWork({ ...backlogWork, isFavorite: newFavoriteState });
+  }, [localIsFavorite, backlogWork, updateWork]);
 
   const handleEditClick = useCallback(() => {
     setIsEditing(true);
@@ -207,7 +222,7 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
       variants={cardVariants}
       // 1. Add `relative` so icons can be positioned relative to the card.
       // 2. Add `group` to enable the `group-hover` pattern.
-      className={`relative group w-72 ${isEditing ? 'h-auto min-h-[520px]' : 'h-auto min-h-[480px]'} bg-slate-800 rounded-lg shadow-xl flex flex-col overflow-hidden border-4 ${getBorderColor()} transition-all duration-300`}
+             className={`relative group w-72 ${isEditing ? 'h-auto min-h-[520px]' : 'h-auto min-h-[480px] max-h-[550px]'} bg-slate-800 rounded-lg shadow-xl flex flex-col overflow-hidden border-4 ${getBorderColor()} transition-all duration-300`}
       onTouchStart={handleMobileTouch}
       onFocus={handleMobileFocus}
       onBlur={handleMobileBlur}
@@ -245,22 +260,34 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
           onClick={handleToggleFavorite}
           className="p-2.5 bg-yellow-900/70 rounded-full hover:bg-yellow-800 cursor-pointer transition-all flex items-center justify-center"
           title="Toggle Favorite"
-          aria-label={backlogWork.isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          {/* Favorite Icon (Star) - Version simplifiée pour éviter la déformation */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className={`w-5 h-5 text-yellow-400 ${backlogWork.isFavorite ? 'fill-current' : 'fill-none'}`}
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-            />
-          </svg>
+                     aria-label={localIsFavorite ? "Remove from favorites" : "Add to favorites"}
+         >
+                      {/* Favorite Icon (Star) - Version mobile */}
+            {localIsFavorite ? (
+             // Version remplie (favori actif)
+             <svg
+               xmlns="http://www.w3.org/2000/svg"
+               className="w-5 h-5 text-yellow-400 fill-current"
+               viewBox="0 0 24 24"
+             >
+               <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+             </svg>
+           ) : (
+             // Version vide (pas favori)
+             <svg
+               xmlns="http://www.w3.org/2000/svg"
+               className="w-5 h-5 text-yellow-400 fill-none"
+               viewBox="0 0 24 24"
+               stroke="currentColor"
+               strokeWidth="1.5"
+             >
+               <path
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+               />
+             </svg>
+           )}
         </button>
         <button
           onClick={handleEditClick}
@@ -299,27 +326,39 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
       </div>
 
       {/* Version Desktop - Visible uniquement au hover */}
-      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hidden md:flex">
+      <div className="absolute top-2 right-2 gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hidden md:flex">
         <button
           onClick={handleToggleFavorite}
           className="p-1.5 bg-yellow-900/70 rounded-full hover:bg-yellow-800 cursor-pointer transition-all flex items-center justify-center"
           title="Toggle Favorite"
-          aria-label={backlogWork.isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          {/* Favorite Icon (Star) - Taille desktop */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-4 h-4 text-yellow-400"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-            />
-          </svg>
+                     aria-label={localIsFavorite ? "Remove from favorites" : "Add to favorites"}
+         >
+                      {/* Favorite Icon (Star) - Taille desktop */}
+            {localIsFavorite ? (
+             // Version remplie (favori actif)
+             <svg
+               xmlns="http://www.w3.org/2000/svg"
+               className="w-4 h-4 text-yellow-400 fill-current"
+               viewBox="0 0 24 24"
+             >
+               <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+             </svg>
+           ) : (
+             // Version vide (pas favori)
+             <svg
+               xmlns="http://www.w3.org/2000/svg"
+               className="w-4 h-4 text-yellow-400 fill-none"
+               viewBox="0 0 24 24"
+               stroke="currentColor"
+               strokeWidth="1.5"
+             >
+               <path
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+               />
+             </svg>
+           )}
         </button>
         <button
           onClick={handleEditClick}
@@ -515,10 +554,12 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
           </div>
         ) : ( // DISPLAY MODE
           <>
-            <h2 className="text-xl font-bold text-gray-100">{backlogWork.title}</h2>
-            <p className="text-md text-gray-400 mt-1 capitalize">{backlogWork.category.replace('-', ' ')}</p>
+                          <h2 className="text-xl font-bold text-gray-100">{backlogWork.title}</h2>
+              <p className="text-md text-gray-400 mt-1 capitalize">{backlogWork.category.replace('-', ' ')}</p>
 
-            <div className="mt-3">
+
+
+              <div className="mt-3">
               {backlogWork.notes ? (
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm text-slate-300 text-left italic border-l-2 border-slate-600 pl-3 flex-1 max-h-32 overflow-y-auto">
@@ -568,16 +609,63 @@ function WorkCardComponent({backlogWork, activeMoods, moods, isPromptingForProgr
                 .filter(Boolean) // Filter out any unfound moods
                 .map(mood => {
                   // Derive a lighter text color from the mood's background color
-                  const textColorClass = mood!.color
+                  let textColorClass = mood!.color
                     .replace('bg-', 'text-')
                     .replace('300', '200')
                     .replace('400', '200')
                     .replace('500', '300');
 
+                  // Fix pour les couleurs trop claires : utiliser un fond plus foncé
+                  let backgroundColorClass = mood!.color;
+                  if (mood!.color === 'bg-yellow-300') {
+                    backgroundColorClass = 'bg-yellow-600'; // Jaune moutarde plus foncé
+                    textColorClass = 'text-yellow-100'; // Texte clair sur fond foncé
+                  } else if (mood!.color === 'bg-blue-300') {
+                    backgroundColorClass = 'bg-blue-600'; // Bleu plus foncé pour "Tired"
+                    textColorClass = 'text-blue-100'; // Texte clair sur fond foncé
+                  }
+
                   // Combine background color, its opacity, and text color for the badge
-                  return <span key={mood!.id} className={`text-sm sm:text-xs font-semibold px-3 py-1 sm:px-2 sm:py-0.5 rounded-full ${mood!.color} bg-opacity-20 ${textColorClass}`}>{mood!.label}</span>
+                  return <span key={mood!.id} className={`text-sm sm:text-xs font-semibold px-3 py-1 sm:px-2 sm:py-0.5 rounded-full ${backgroundColorClass} bg-opacity-80 ${textColorClass}`}>{mood!.label}</span>
                 })}
             </div>
+
+            {/* Smart Tags Display - En bas, centrés */}
+            {backlogWork.smartTags && backlogWork.smartTags.length > 0 && (
+              <div className="mt-auto pt-3 border-t border-slate-700/50">
+                <div className="flex flex-wrap justify-center gap-1">
+                  {backlogWork.smartTags.map((tag) => {
+                    // Utilise les mêmes couleurs que SmartTagSelector
+                    let tagColorClass = '';
+                    if (tag === 'lateNight' || tag === 'quick' || tag === 'long') {
+                      tagColorClass = 'bg-blue-600/50 text-blue-200';
+                    } else if (tag === 'withFriend' || tag === 'solo') {
+                      tagColorClass = 'bg-green-600/50 text-green-200';
+                    } else {
+                      tagColorClass = 'bg-slate-600/50 text-slate-300';
+                    }
+
+                    // Labels des tags
+                    const tagLabels: Record<string, string> = {
+                      lateNight: 'Late Night',
+                      quick: 'Quick',
+                      long: 'Long',
+                      withFriend: 'With Friend',
+                      solo: 'Solo'
+                    };
+
+                    return (
+                      <span
+                        key={tag}
+                        className={`px-2 py-0.5 ${tagColorClass} text-xs rounded-full`}
+                      >
+                        {tagLabels[tag] || tag}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

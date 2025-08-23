@@ -131,14 +131,28 @@ function AddWorkCardComponent({ moods }: AddWorkCardProps) {
           </div>
         </div>
 
-        {/* Section to edit Smart Tags */}
+                 {/* Section to edit Smart Tags */}
+         <div className="mt-2 border-t border-slate-700 pt-3">
+           <p className="text-sm text-slate-400 mb-2 text-center">Smart Tags:</p>
+           <SmartTagSelector
+             activeTags={formData.smartTags || []}
+             onTagToggle={handleSmartTagToggle}
+             className="max-h-56 overflow-y-auto"
+           />
+         </div>
+
+        {/* Collection Checkbox */}
         <div className="mt-2 border-t border-slate-700 pt-3">
-          <p className="text-sm text-slate-400 mb-2 text-center">Smart Tags:</p>
-          <SmartTagSelector
-            activeTags={formData.smartTags || []}
-            onTagToggle={handleSmartTagToggle}
-            className="max-h-48 overflow-y-auto"
-          />
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="inCollection"
+              checked={formData.inCollection || false}
+              onChange={(e) => setFormData(prev => ({ ...prev, inCollection: e.target.checked }))}
+              className="w-4 h-4 text-green-600 bg-slate-700 border-slate-600 rounded focus:ring-green-500 focus:ring-2"
+            />
+            <span className="text-sm text-slate-300">📚 I have this in my collection</span>
+          </label>
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <button type="button" onClick={handleCollapse} className="px-4 py-1 bg-slate-600 rounded text-white">Cancel</button>

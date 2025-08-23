@@ -15,19 +15,24 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('workStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset le store avant chaque test
     useWorkStore.setState({
       works: [],
       progressEvents: [],
+      isLoading: false,
+      error: null,
     });
 
     // Reset les mocks
     vi.clearAllMocks();
+
+    // Initialiser les services
+    await useWorkStore.getState().initialize();
   });
 
   describe('addWork', () => {
-    it('should add a new work to the store', () => {
+    it('should add a new work to the store', async () => {
       const { addWork } = useWorkStore.getState();
 
       const newWork: Omit<WorkType, 'id' | 'createdAtISO' | 'status' | 'progress' | 'completedAtISO'> = {
@@ -40,7 +45,7 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(newWork);
+      await addWork(newWork);
 
       const { works } = useWorkStore.getState();
       expect(works).toHaveLength(1);
@@ -53,7 +58,7 @@ describe('workStore', () => {
       });
     });
 
-    it('should generate unique ID for each work', () => {
+    it('should generate unique ID for each work', async () => {
       const { addWork } = useWorkStore.getState();
 
       const workData = {
@@ -66,8 +71,8 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(workData);
-      addWork(workData);
+      await addWork(workData);
+      await addWork(workData);
 
       const { works } = useWorkStore.getState();
       expect(works).toHaveLength(2);
@@ -76,7 +81,7 @@ describe('workStore', () => {
   });
 
   describe('updateWork', () => {
-    it('should update an existing work', () => {
+    it('should update an existing work', async () => {
       const { addWork, updateWork } = useWorkStore.getState();
 
       const workData = {
@@ -89,7 +94,7 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(workData);
+      await addWork(workData);
       const { works } = useWorkStore.getState();
 
       const updatedWork: WorkType = {
@@ -98,7 +103,7 @@ describe('workStore', () => {
         status: 'in-progress',
       };
 
-      updateWork(updatedWork);
+      await updateWork(updatedWork);
 
       const { works: updatedWorks } = useWorkStore.getState();
       expect(updatedWorks[0].title).toBe('Updated Title');
@@ -106,7 +111,7 @@ describe('workStore', () => {
       expect(updatedWorks[0].category).toBe('book'); // Non modifié
     });
 
-    it('should not update if work ID does not exist', () => {
+    it('should not update if work ID does not exist', async () => {
       const { updateWork, works } = useWorkStore.getState();
 
       const nonExistentWork: WorkType = {
@@ -123,14 +128,14 @@ describe('workStore', () => {
         progress: 0,
       };
 
-      updateWork(nonExistentWork);
+      await updateWork(nonExistentWork);
 
       expect(works).toHaveLength(0);
     });
   });
 
   describe('deleteWork', () => {
-    it('should remove a work from the store', () => {
+    it('should remove a work from the store', async () => {
       const { addWork, deleteWork } = useWorkStore.getState();
 
       const workData = {
@@ -143,17 +148,17 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(workData);
+      await addWork(workData);
       const { works } = useWorkStore.getState();
       expect(works).toHaveLength(1);
 
-      deleteWork(works[0].id);
+      await deleteWork(works[0].id);
 
       const { works: remainingWorks } = useWorkStore.getState();
       expect(remainingWorks).toHaveLength(0);
     });
 
-    it('should not affect other works when deleting', () => {
+    it('should not affect other works when deleting', async () => {
       const { addWork, deleteWork } = useWorkStore.getState();
 
       const workData1 = {
@@ -176,13 +181,13 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(workData1);
-      addWork(workData2);
+      await addWork(workData1);
+      await addWork(workData2);
       const { works } = useWorkStore.getState();
       expect(works).toHaveLength(2);
 
       // Supprimer le premier work (workData2 qui est à l'index 0)
-      deleteWork(works[0].id);
+      await deleteWork(works[0].id);
 
       const { works: remainingWorks } = useWorkStore.getState();
       expect(remainingWorks).toHaveLength(1);
@@ -193,7 +198,7 @@ describe('workStore', () => {
   });
 
   describe('getWorkById', () => {
-    it('should return work by ID', () => {
+    it('should return work by ID', async () => {
       const { addWork, getWorkById } = useWorkStore.getState();
 
       const workData = {
@@ -206,7 +211,7 @@ describe('workStore', () => {
         isFavorite: false,
       };
 
-      addWork(workData);
+      await addWork(workData);
       const { works } = useWorkStore.getState();
       const workId = works[0].id;
 

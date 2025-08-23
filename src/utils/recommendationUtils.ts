@@ -45,10 +45,16 @@ export function calculateRecommendationScore({ work, todayMoods, activeSmartTags
 
   // Duration-based scoring
 
-  // +2 if favorite
+  // +3 if favorite
   if (work.isFavorite) {
     score += 3;
     breakdown.push('+3 for being a favorite')
+  }
+
+  // +4 if in collection
+  if (work.inCollection) {
+    score += 4;
+    breakdown.push('+4 for item in your collection')
   }
 
   // -2 if re-suggested < 24h

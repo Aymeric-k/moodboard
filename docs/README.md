@@ -16,9 +16,11 @@ Moodboard v4 is a React-based application for managing personal media backlog wi
 
 ### Advanced Features
 
+- **Expert Curation System**: Premium carousel with expert book recommendations and "Pick of the Week"
 - **Notes System**: Rich text editing with modal support for long notes
 - **Yearly Heatmap**: Visual representation of daily activities and mood patterns
 - **Theme System**: 5 beautiful color themes with smooth transitions
+- **Internationalization**: Full English localization with proper date formatting
 - **Mobile Optimization**: Responsive design with touch-friendly interactions
 - **Performance Monitoring**: Built-in profiling and optimization tools
 
@@ -58,16 +60,28 @@ src/
 │   ├── ThemeSelector.tsx # Theme switching
 │   ├── NotesModal.tsx  # Rich text editing
 │   ├── EmptyState.tsx  # Contextual empty states
-│   └── YearlyHeatmap.tsx # Activity visualization
+│   ├── YearlyHeatmap.tsx # Activity visualization
+│   ├── ExpertCarousel.tsx # Expert recommendations carousel
+│   ├── ExpertCarouselCard.tsx # Individual expert pick card
+│   └── ExpertProfile.tsx # Expert profile modal
 ├── stores/             # Zustand state stores
 │   ├── workStore.ts    # Work data management
 │   ├── moodStore.ts    # Mood system
 │   ├── filterStore.ts  # Search and filters
 │   ├── uiStore.ts      # UI state management
-│   └── themeStore.ts   # Theme system
+│   ├── themeStore.ts   # Theme system
+│   └── expertStore.ts  # Expert curation system
 ├── types/              # TypeScript type definitions
+│   ├── ExpertType.ts   # Expert profile definitions
+│   └── ExpertPick.ts   # Expert recommendation types
+├── data/               # Sample and initial data
+│   └── sampleExperts.ts # Expert profiles and picks
 ├── utils/              # Utility functions
 ├── hooks/              # Custom React hooks
+│   └── useExpertInitialization.ts # Expert data setup
+├── services/           # Service layer architecture
+│   ├── interfaces.ts   # Service interfaces
+│   └── LocalStorage*Service.ts # Data persistence
 └── styles/             # CSS and theme styles
 ```
 
@@ -78,6 +92,7 @@ src/
 - **filterStore**: Search queries, status/category filters
 - **uiStore**: Modal states, UI interactions
 - **themeStore**: Theme selection and application
+- **expertStore**: Expert profiles, picks, and curation logic
 
 ## Performance Optimizations
 

@@ -12,6 +12,7 @@ export interface WorkType {
   progress: number; // Progress from 0 to 100
   completedAtISO?: string;
   isFavorite?: boolean;
+  inCollection?: boolean;
   lastSuggestedAtISO?: string;
   smartTags?: SmartTag[];
   notes?: string;

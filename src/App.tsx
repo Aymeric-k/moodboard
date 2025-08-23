@@ -24,6 +24,9 @@ import { useUIStore } from './stores/uiStore.ts';
 import SmartTagSelector from './components/SmartTagSelector.tsx';
 import PerformanceProfiler from './components/PerformanceProfiler.tsx';
 import { useThemeStore } from './stores/themeStore';
+import { ServicesTest } from './components/ServicesTest';
+import { ExpertCarousel } from './components/ExpertCarousel';
+import { useExpertInitialization } from './hooks/useExpertInitialization';
 
 function App() {
   // Refs for the filter menu and its toggle button
@@ -43,6 +46,9 @@ function App() {
   } = useUIStore();
 
   const { initializeTheme } = useThemeStore();
+
+  // Initialize expert data
+  const { isInitialized: expertDataInitialized } = useExpertInitialization();
 
   // Detect mobile screen size
   const [isMobile, setIsMobile] = useState(false);
@@ -136,7 +142,7 @@ function App() {
       }
     });
     return recommendations;
-  }, [works, todayMoods, activeSmartTags, moods]);
+  }, [works, todayMoods, activeSmartTags]);
 
   // Optimized displayed works with memoized filters
   const displayedWorks = useMemo(() => {
@@ -177,11 +183,7 @@ function App() {
   // Memoized categories to prevent unnecessary recalculations
   const uniqueCategories = useMemo(() => [...new Set(works.map(w => w.category))], [works]);
 
-  // Memoized container key to prevent unnecessary re-renders
-  const containerKey = useMemo(() =>
-    todayMoods.join('-') + activeSmartTags.join('-'),
-    [todayMoods, activeSmartTags]
-  );
+
 
   // Variants pour le conteneur qui va orchestrer l'animation
   const containerVariants = {
@@ -197,6 +199,9 @@ function App() {
 
   return (
     <div id="app-root" className="min-h-screen">
+      {/* Expert Carousel - Premium position top-left */}
+      {expertDataInitialized && <ExpertCarousel />}
+
       <h1 className="text-3xl font-bold text-center pt-10 text-theme-text px-4 sm:text-2xl sm:pt-6">How are you feeling today?</h1>
 
       {/* Theme Selector - Positionné en haut à droite */}
@@ -233,12 +238,16 @@ function App() {
       <h2 className="text-2xl font-bold text-center pt-6 text-theme-text px-4 sm:text-xl sm:pt-4">What do you want to do?</h2>
 
       <motion.div
-        key={containerKey} // A key that changes when moods or tags change
         className='relative flex flex-wrap justify-center gap-8 p-4 max-w-7xl mx-auto'
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
+        {/* Services Test Component */}
+        <div className="mb-6">
+          <ServicesTest />
+        </div>
+
         {/* Filter Button - Positionné en haut à droite du container des WorkCards */}
         <div className="absolute -top-6 right-4 z-20">
           <button
@@ -283,7 +292,7 @@ function App() {
 
         <PerformanceProfiler id="work-cards-container">
           {displayedWorks.length > 0 ? (
-            <AnimatePresence key="work-cards" mode="wait">
+            <div className="flex flex-wrap justify-center gap-8">
               {displayedWorks.map((work) => (
                 <PerformanceProfiler key={work.id} id={`work-card-${work.id}`}>
                   <WorkCard
@@ -295,7 +304,7 @@ function App() {
                   />
                 </PerformanceProfiler>
               ))}
-            </AnimatePresence>
+            </div>
           ) : (
             <EmptyState totalWorksCount={works.length} />
           )}

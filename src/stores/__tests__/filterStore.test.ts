@@ -14,7 +14,7 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('filterStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset le store avant chaque test
     useFilterStore.setState({
       filters: {
@@ -24,17 +24,22 @@ describe('filterStore', () => {
         searchQuery: '',
       },
       activeSmartTags: [],
+      isLoading: false,
+      error: null,
     });
 
     // Reset les mocks
     vi.clearAllMocks();
+
+    // Initialiser les services
+    await useFilterStore.getState().initialize();
   });
 
   describe('setFilters', () => {
-    it('should update individual filter values', () => {
+    it('should update individual filter values', async () => {
       const { setFilters } = useFilterStore.getState();
 
-      setFilters({ status: 'in-progress' });
+      await setFilters({ status: 'in-progress' });
 
       const { filters } = useFilterStore.getState();
       expect(filters.status).toBe('in-progress');
@@ -42,10 +47,10 @@ describe('filterStore', () => {
       expect(filters.isFavorite).toBe(false); // Non modifié
     });
 
-    it('should update multiple filters at once', () => {
+    it('should update multiple filters at once', async () => {
       const { setFilters } = useFilterStore.getState();
 
-      setFilters({
+      await setFilters({
         status: 'completed',
         category: 'book',
         isFavorite: true

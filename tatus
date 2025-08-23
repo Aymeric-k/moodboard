@@ -1,0 +1,11 @@
+* [33m1462bda[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/testvitest[m[33m, [m[1;31morigin/feat/testvitest[m[33m)[m feat/ test entry vitest
+* [33m8bb0fb0[m[33m ([m[1;31morigin/feat/colorswitcher[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mmain[m[33m, [m[1;32mfeat/colorswitcher[m[33m, [m[1;32mdev[m[33m)[m fix/colorswitcher initialization
+* [33m2b840a0[m feat: color theme switch
+* [33mf50911d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/feature/performance-optimization[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mfeature/performance-optimization[m[33m)[m feat: implement comprehensive performance optimizations
+*   [33m4edcbdb[m merge: resolve conflicts in docs/README.md and complete feature/notes-modal integration
+[32m|[m[33m\[m  
+[32m|[m * [33m5c282fe[m[33m ([m[1;31morigin/feature/notes-modal[m[33m, [m[1;32mfeature/notes-modal[m[33m)[m feat(notes-modal): implement spacious notes editor for WorkCards
+* [33m|[m [33m337ae5f[m[33m ([m[1;31morigin/feature/smarttags[m[33m, [m[1;32mfeature/smarttags[m[33m)[m feat(smarttags): optimize system with 5 unique contextual tags
+[33m|[m[33m/[m  
+* [33mc9da9a1[m[33m ([m[1;32mfeature/search[m[33m)[m feat(search): add search with debounce and filter integration
+* [33ma358e68[m Initial commit - Moodboard app with Zustand architecture

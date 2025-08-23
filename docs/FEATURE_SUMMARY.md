@@ -50,14 +50,22 @@ Moodboard v4 is a comprehensive personal media management application with advan
 - **Work Progress**: Track additions, completions, and progress
 - **Mobile Optimized**: Month-by-month view for small screens
 
-### 7. Theme System
+### 7. Expert Curation System
+
+- **Expert Profiles**: Detailed librarian and literary expert profiles
+- **Pick of the Week**: Weekly featured book recommendations with historical view
+- **Responsive Carousel**: Desktop carousel and mobile bottom sheet interface
+- **Amazon Integration**: Direct purchase links with affiliate support
+- **Social Integration**: Expert social media links and professional profiles
+
+### 8. Theme System
 
 - **5 Color Themes**: Dark Blue, Purple, Green, Orange, Rose
 - **Custom Gradients**: Beautiful background gradients for each theme
 - **Persistent Selection**: Theme preference saved in localStorage
 - **Smooth Transitions**: Instant theme switching with CSS variables
 
-### 8. Mobile Responsiveness
+### 9. Mobile Responsiveness
 
 - **Touch Optimized**: 44px minimum touch targets
 - **Responsive Layouts**: Adaptive grids and components
@@ -66,28 +74,29 @@ Moodboard v4 is a comprehensive personal media management application with advan
 
 ## Technical Features
 
-### 9. Performance Optimizations
+### 10. Performance Optimizations
 
 - **React.memo**: Component memoization for optimal rendering
 - **useMemo/useCallback**: Hook optimization for expensive operations
 - **Performance Profiling**: Built-in monitoring and optimization tools
 - **Custom Hooks**: Stable value and callback optimization
 
-### 10. State Management
+### 11. State Management
 
 - **Zustand Stores**: Lightweight and efficient state management
 - **Persistent Storage**: Local storage for data persistence
 - **Optimized Updates**: Minimal re-renders and efficient state changes
 - **Type Safety**: Full TypeScript integration
+- **Expert Store**: Dedicated store for expert curation system
 
-### 11. Animation System
+### 12. Animation System
 
 - **Framer Motion**: Smooth and performant animations
 - **Layout Animations**: Efficient component transitions
 - **Staggered Effects**: Beautiful staggered animations
 - **Exit Animations**: Smooth component removal
 
-### 12. Data Persistence
+### 13. Data Persistence
 
 - **Local Storage**: Client-side data persistence
 - **State Recovery**: Automatic state restoration on reload
@@ -96,21 +105,21 @@ Moodboard v4 is a comprehensive personal media management application with advan
 
 ## User Experience Features
 
-### 13. Empty State Management
+### 14. Empty State Management
 
 - **Contextual Messages**: Intelligent empty state messages
 - **Action Guidance**: Clear next steps for users
 - **Filter Awareness**: Context-aware suggestions
 - **Motivational Content**: Encouraging user engagement
 
-### 14. Accessibility Features
+### 15. Accessibility Features
 
 - **ARIA Labels**: Screen reader support
 - **Keyboard Navigation**: Full keyboard accessibility
 - **Color Contrast**: WCAG AA compliant color schemes
 - **Focus Management**: Proper focus handling and indicators
 
-### 15. Error Handling
+### 16. Error Handling
 
 - **Graceful Degradation**: App continues working with errors
 - **User Feedback**: Clear error messages and suggestions
@@ -119,21 +128,21 @@ Moodboard v4 is a comprehensive personal media management application with advan
 
 ## Development Features
 
-### 16. Development Tools
+### 17. Development Tools
 
 - **TypeScript**: Full type safety and developer experience
 - **ESLint**: Code quality and consistency
 - **Performance Monitoring**: Built-in profiling tools
 - **Hot Reloading**: Fast development iteration
 
-### 17. Code Quality
+### 18. Code Quality
 
 - **Component Architecture**: Modular and reusable components
 - **Hook Patterns**: Custom hooks for common functionality
 - **State Patterns**: Consistent state management patterns
 - **Error Boundaries**: React error boundary implementation
 
-### 18. Testing & Validation
+### 19. Testing & Validation
 
 - **Manual Testing**: Comprehensive feature testing
 - **Performance Testing**: Render time and optimization validation
@@ -150,6 +159,7 @@ Moodboard v4 is a comprehensive personal media management application with advan
 - [x] Advanced Search & Filtering
 - [x] Notes Management
 - [x] Yearly Heatmap
+- [x] Expert Curation System
 - [x] Theme System
 - [x] Mobile Responsiveness
 - [x] Performance Optimizations

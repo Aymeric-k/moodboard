@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import type { IThemeService } from '../services/interfaces';
 
 export type ThemeType = 'dark-blue' | 'purple' | 'green' | 'orange' | 'rose';
 
@@ -84,47 +84,85 @@ const DEFAULT_THEME: ThemeType = 'dark-blue';
 
 interface ThemeStoreState {
   currentTheme: ThemeType;
-  setTheme: (theme: ThemeType) => void;
+  themeService: IThemeService | null;
+  isLoading: boolean;
+  error: string | null;
+
+  // Actions
+  setTheme: (theme: ThemeType) => Promise<void>;
   getCurrentTheme: () => Theme;
-  initializeTheme: () => void;
+  initializeTheme: () => Promise<void>;
+
+  // Initialisation
+  initialize: (themeService: IThemeService) => Promise<void>;
 }
 
-export const useThemeStore = create<ThemeStoreState>()(
-  persist(
-    (set, get) => ({
-      currentTheme: DEFAULT_THEME,
-      setTheme: (theme: ThemeType) => {
-        set({ currentTheme: theme });
-        // Appliquer le thème immédiatement
-        applyThemeToDOM(theme);
-      },
-      getCurrentTheme: () => {
-        const { currentTheme } = get();
-        return THEMES[currentTheme];
-      },
-      initializeTheme: () => {
-        const { currentTheme } = get();
-        // S'assurer qu'un thème est toujours appliqué
-        applyThemeToDOM(currentTheme);
-      },
-    }),
-    {
-      name: 'moodboard-theme',
-      storage: createJSONStorage(() => localStorage),
-      // Initialisation automatique avec fallback
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Si pas de thème sauvegardé, utiliser le défaut
-          if (!state.currentTheme) {
-            state.currentTheme = DEFAULT_THEME;
-          }
-          // Appliquer le thème immédiatement
-          applyThemeToDOM(state.currentTheme);
-        }
-      },
+export const useThemeStore = create<ThemeStoreState>((set, get) => ({
+  currentTheme: DEFAULT_THEME,
+  themeService: null,
+  isLoading: false,
+  error: null,
+
+  // Initialisation avec le service
+  initialize: async (themeService: IThemeService) => {
+    try {
+      set({ isLoading: true, error: null, themeService });
+
+      const savedTheme = await themeService.getCurrentTheme();
+      const themeType = savedTheme as ThemeType;
+
+      if (THEMES[themeType]) {
+        set({ currentTheme: themeType });
+        applyThemeToDOM(themeType);
+      } else {
+        set({ currentTheme: DEFAULT_THEME });
+        applyThemeToDOM(DEFAULT_THEME);
+      }
+
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to initialize theme',
+        isLoading: false
+      });
     }
-  )
-);
+  },
+
+  setTheme: async (theme: ThemeType) => {
+    const { themeService } = get();
+    if (!themeService) {
+      set({ error: 'Theme service not initialized' });
+      return;
+    }
+
+    try {
+      // Mise à jour immédiate de l'UI
+      set({ currentTheme: theme });
+      applyThemeToDOM(theme);
+
+      // Persistence différée (asynchrone en arrière-plan)
+      themeService.setTheme(theme).catch(error => {
+        console.error('Failed to persist theme:', error);
+        set({ error: 'Failed to persist theme' });
+      });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to set theme'
+      });
+    }
+  },
+
+  getCurrentTheme: () => {
+    const { currentTheme } = get();
+    return THEMES[currentTheme];
+  },
+
+  initializeTheme: async () => {
+    const { currentTheme } = get();
+    // S'assurer qu'un thème est toujours appliqué
+    applyThemeToDOM(currentTheme);
+  },
+}));
 
 // Fonction pour appliquer le thème au DOM
 function applyThemeToDOM(themeId: ThemeType) {
@@ -133,7 +171,7 @@ function applyThemeToDOM(themeId: ThemeType) {
     console.warn(`Theme ${themeId} not found, falling back to default`);
     themeId = DEFAULT_THEME;
   }
-  
+
   const body = document.body;
   const appRoot = document.getElementById('app-root');
 
