@@ -7,14 +7,10 @@ import { useThemeStore } from '../stores/themeStore';
 import {
   XMarkIcon,
   ArrowTopRightOnSquareIcon,
-  StarIcon,
   BookOpenIcon,
   CalendarIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
-import {
-  StarIcon as StarIconSolid
-} from '@heroicons/react/24/solid';
 
 interface ExpertProfileProps {
   expertId: string | null;
@@ -32,6 +28,7 @@ export const ExpertProfile: React.FC<ExpertProfileProps> = ({
   const { getCurrentTheme } = useThemeStore();
 
   const currentTheme = getCurrentTheme();
+  const { currentTheme: currentThemeId } = useThemeStore();
 
   const expert = expertId ? getExpertById(expertId) : null;
   const expertPicks = expertId ? getPicksByExpert(expertId) : [];
@@ -71,27 +68,7 @@ export const ExpertProfile: React.FC<ExpertProfileProps> = ({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <div key={i} className="relative">
-        {i < Math.floor(rating) ? (
-          <StarIconSolid className="w-4 h-4 text-yellow-400" />
-        ) : i < rating ? (
-          <div className="relative">
-            <StarIcon className="w-4 h-4 text-slate-400" />
-            <div
-              className="absolute top-0 left-0 overflow-hidden"
-              style={{ width: `${(rating - i) * 100}%` }}
-            >
-              <StarIconSolid className="w-4 h-4 text-yellow-400" />
-            </div>
-          </div>
-        ) : (
-          <StarIcon className="w-4 h-4 text-slate-400" />
-        )}
-      </div>
-    ));
-  };
+
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -182,38 +159,24 @@ export const ExpertProfile: React.FC<ExpertProfileProps> = ({
                     {expert.specialty}
                   </p>
 
-                  {/* Responsive Stats */}
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-6 mb-4">
-                    {expert.averageRating && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-1">
-                          {renderStars(expert.averageRating)}
-                        </div>
-                        <span
-                          className="text-sm"
-                          style={{ color: currentTheme.textSecondary }}
-                        >
-                          {expert.averageRating.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
-
-                    <div
-                      className="flex items-center gap-2"
-                      style={{ color: currentTheme.textSecondary }}
-                    >
-                      <BookOpenIcon className="w-4 h-4" />
-                      <span className="text-sm">{expertPicks.length} recommendations</span>
-                    </div>
-
-                    <div
-                      className="flex items-center gap-2"
-                      style={{ color: currentTheme.textSecondary }}
-                    >
-                       <CalendarIcon className="w-4 h-4" />
-                       <span className="text-sm">Since {formatDate(expert.joinedAt)}</span>
+                                     {/* Responsive Stats */}
+                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-6 mb-4">
+                     <div
+                       className="flex items-center gap-2"
+                       style={{ color: currentTheme.textSecondary }}
+                     >
+                       <BookOpenIcon className="w-4 h-4" />
+                       <span className="text-sm">{expertPicks.length} recommendations</span>
                      </div>
-                  </div>
+
+                     <div
+                       className="flex items-center gap-2"
+                       style={{ color: currentTheme.textSecondary }}
+                     >
+                        <CalendarIcon className="w-4 h-4" />
+                        <span className="text-sm">Since {formatDate(expert.joinedAt)}</span>
+                      </div>
+                   </div>
 
                   {/* Responsive Social Links */}
                   {expert.socialLinks && (
@@ -236,15 +199,7 @@ export const ExpertProfile: React.FC<ExpertProfileProps> = ({
                           <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                         </button>
                       )}
-                      {expert.socialLinks.website && (
-                        <button
-                          onClick={() => handleSocialLink(expert.socialLinks!.website!)}
-                          className="px-3 py-2 bg-blue-600/20 text-blue-300 rounded-lg text-xs sm:text-sm hover:bg-blue-600/30 transition-colors flex items-center gap-2"
-                        >
-                          🌐 <span className="hidden sm:inline">Website</span>
-                          <ArrowTopRightOnSquareIcon className="w-3 h-3" />
-                        </button>
-                      )}
+
                     </div>
                   )}
                 </div>
@@ -252,7 +207,12 @@ export const ExpertProfile: React.FC<ExpertProfileProps> = ({
             </div>
 
             {/* Content */}
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div
+              className="p-6 overflow-y-auto max-h-[60vh]"
+                            style={{
+                backgroundColor: currentThemeId === 'rose' ? '#9b114a' : currentTheme.surface
+              }}
+            >
               {/* Bio */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-white mb-4">About</h2>

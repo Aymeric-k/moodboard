@@ -6,13 +6,12 @@ export const sampleExperts: Expert[] = [
   {
     id: 'maelle-librarian',
     name: 'Maëlle K.',
-    bio: 'Passionate librarian for 5 years, specialist in contemporary literature and fiction. I\'ve read over 300 books this year and share my "Pick of the Week" with you every Monday. Specialized in contemporary novels, inspiring memoirs, and travel literature.',
+    bio: 'Young graduate passionate about books who decided to make it her profession! 📚✨ I pick from all categories without exception - from thrillers that make you shiver to novels that make you cry, through essays that make you think. My secret? I never hesitate to share my gems with my readers! Every week, I discover for you the rare pearls and favorites that really deserve to be read. Because a good book is meant to be shared! 💫',
     specialty: 'Literature & Fiction',
     photoUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=96&h=96&fit=crop&crop=face&auto=format&q=80',
     socialLinks: {
       instagram: '@maelle_reads',
-      goodreads: 'maelle-librarian',
-      website: 'https://maellereads.blog'
+      goodreads: 'maelle-librarian'
     },
     expertise: ['book'],
     isActive: true,
